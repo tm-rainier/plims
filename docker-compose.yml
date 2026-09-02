@@ -1,0 +1,63 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: plims_db
+    environment:
+      POSTGRES_USER: plims_user
+      POSTGRES_PASSWORD: plims_password
+      POSTGRES_DB: plims_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - plims_network
+
+  api:
+    build: 
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: plims_api
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_USER=plims_user
+      - DB_PASSWORD=plims_password
+      - DB_NAME=plims_db
+    depends_on:
+      - db
+    command: npm run dev:migrate
+    networks:
+      - plims_network
+    volumes:
+      - ./backend:/usr/src/app
+      - /usr/src/app/node_modules
+
+  web:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: plims_web
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_API_URL=http://localhost:3000
+    depends_on:
+      - api
+    networks:
+      - plims_network
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+
+networks:
+  plims_network:
+    driver: bridge
+
+volumes:
+  pgdata:

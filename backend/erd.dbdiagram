@@ -1,0 +1,63 @@
+// PLIMS Database Schema - dbdiagram.io Format
+// Parachute Logistics & Inventory Management System
+
+Table users {
+  id uuid [pk]
+  rank string [not null]
+  name string [not null]
+  role enum [not null, note: "rigger, inspector, senior_inspector, admin"]
+  is_active boolean [default: true]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+}
+
+Table user_availability {
+  id uuid [pk]
+  user_id uuid [not null, ref: > users.id]
+  date date [not null]
+  status enum [not null, note: "available, school, range, leave, sick, other"]
+  note string [null]
+  Indexes {
+    (user_id, date) [unique]
+  }
+}
+
+Table parachutes {
+  serial_number string [pk]
+  model string [not null, note: "T-11, MC-6"]
+  category enum [not null, default: "main", note: "main, reserve"]
+  status enum [not null, default: "maintenance", note: "ready, expired, maintenance, in_process"]
+  process_stage enum [not null, default: "unpacked", note: "unpacked, packed, initial_inspected, final_inspected"]
+  last_pack_date date [null]
+  packer_id uuid [null, ref: > users.id]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+}
+
+Table events {
+  id uuid [pk]
+  name string [not null]
+  jump_date date [not null]
+  draw_date date [not null, note: "When chutes are pulled"]
+  quantity_required integer [not null]
+  surge_mode boolean [default: false]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+}
+
+Table daily_logs {
+  id uuid [pk]
+  user_id uuid [not null, ref: > users.id]
+  date date [not null]
+  pack_count integer [default: 0]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+  Indexes {
+    (user_id, date) [unique]
+  }
+}
+
+// Relationships
+Ref: parachutes.packer_id > users.id
+Ref: user_availability.user_id > users.id
+Ref: daily_logs.user_id > users.id
