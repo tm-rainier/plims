@@ -4,7 +4,8 @@ import { PersonnelGrid } from '@/components/PersonnelGrid';
 import { CalendarView } from '@/components/CalendarView';
 import { InventoryView } from '@/components/InventoryView';
 import { Button } from '@/components/ui/button';
-import { LayoutDashboard, Users, Calendar, Package } from 'lucide-react';
+import { LayoutDashboard, Users, Calendar, Package, RotateCcw } from 'lucide-react';
+import { resetData } from '@/lib/mockData';
 
 type View = 'dashboard' | 'personnel' | 'calendar' | 'inventory';
 
@@ -17,9 +18,26 @@ const NAV_ITEMS: { key: View; label: string; icon: typeof LayoutDashboard }[] = 
 
 function App() {
   const [view, setView] = useState<View>('dashboard');
+  const [resetKey, setResetKey] = useState(0);
+
+  const handleReset = () => {
+    resetData();
+    setResetKey(k => k + 1);
+  };
 
   return (
     <div className="min-h-screen bg-background text-foreground pb-16 md:pb-0">
+      {/* Prototype banner */}
+      <div className="bg-amber-500 text-amber-950 text-center text-xs font-semibold py-1.5 px-4">
+        PROTOTYPE - Interactive demo with mock data (stored in your browser).
+        <button
+          onClick={handleReset}
+          className="ml-2 inline-flex items-center gap-1 underline underline-offset-2 hover:text-amber-900"
+        >
+          <RotateCcw className="h-3 w-3" /> Reset data
+        </button>
+      </div>
+
       {/* Desktop top nav */}
       <div className="hidden md:block border-b sticky top-0 z-30 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="flex h-14 items-center px-6">
@@ -66,7 +84,7 @@ function App() {
       </div>
 
       {/* Main Content */}
-      <main className="p-4 md:p-6 lg:p-8">
+      <main key={resetKey} className="p-4 md:p-6 lg:p-8">
         {view === 'dashboard' && <Dashboard />}
         {view === 'personnel' && <PersonnelGrid />}
         {view === 'calendar' && <CalendarView />}

@@ -1,0 +1,58 @@
+Project Title: PLIMS (Parachute Labor & Inventory Management System)
+System Overview: Build a full-stack resource planning application for Army Rigger operations. The app manages a three-way constraint model: Equipment Expiration (180-day cycle), Personnel Availability (Schools/Leave), and Production Limits (12-pack per man/day cap).
+
+Tech Stack Requirements:
+
+Frontend: React with TypeScript, Tailwind CSS, Shadcn/UI.
+
+Backend: Node.js/Express with TypeScript.
+
+Database: PostgreSQL managed via Knex.js migrations.
+
+DevOps: Dockerize the entire environment (Dockerfile and docker-compose.yml for app and DB).
+
+Database Schema & Logic Requirements:
+
+Users/Personnel Table: Include rank, name, role (Rigger/Inspector), and availability_status.
+
+Parachutes Table: Serial number, model (T-11, MC-6), last_pack_date, and status (Ready, Expired, Maintenance).
+
+Events Table: Event name, jump_date, draw_date, and quantity_required.
+
+Daily Log Table: Tracks daily production per rigger to enforce the 12-per-day cap.
+
+Core Features to Implement:
+
+The Labor Matrix Engine: * Create a logic layer that calculates DailyCapacity = (ActiveRiggers * 12).
+
+Integrate a "Personnel Tracker" calendar where riggers can be flagged for "Schools" or "Range," which must automatically decrement the total DailyCapacity for those dates.
+
+Long-Range Forecasting (2-Year Calendar):
+
+A high-level timeline showing scheduled Airborne operations.
+
+Backend Logic: When an event is added, use Knex to query available labor days between today and the draw_date. If required_chutes > available_man_days * 12, flag the event as "Logistically Unfeasible."
+
+Inventory Expiration logic:
+
+Implement a cron-like function or view that calculates days_until_expiration based on the 180-day repack rule.
+
+Visualize "Repack Waves" where batches of chutes will expire simultaneously.
+
+Inspection Workflow:
+
+Create a status-flow for each parachute: Packed -> Initial Inspection (Inspector ID) -> Final Inspection (Senior Inspector ID) -> Ready for Issue.
+
+UI Requirements:
+
+Main Dashboard: KPI cards for "Mission Ready %", "Riggers on Floor," and "Next 30-day Labor Gap."
+
+Personnel Grid: An editable matrix to toggle rigger availability.
+
+Calendar: A 24-month Gantt-style view showing events and "Labor Shadow" (the days leading up to a jump required for packing).
+
+Docker Configuration:
+
+Provide a docker-compose.yml that links the Express API, the PostgreSQL DB, and the React frontend.
+
+Include a knexfile.ts for migrations and seeding initial mock rigger data.
